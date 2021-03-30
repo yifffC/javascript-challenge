@@ -3,43 +3,40 @@ var tableData = data;
 
 // YOUR CODE HERE!
 var tbody = d3.select("tbody");
-
-var getMatchingRecords = dt => {
-    var mdy1 = new Date(dt);
-    var records = []
-    tableData.forEach(datum => {
-        var mdy2 = new Date(datum.datetime);
-        if ((mdy2.getTime() === mdy1.getTime()) || (dt === "")) {
-            records.push(datum);
-        }
-    });
-    return records;
-}
-
-var updateTable = records => {
-    tbody.html("");
-    if (records.length < 1) return;
-    records.forEach(record => {
-        var row = tbody.append("tr");
-        Object.entries(record).forEach(([key, value]) => {
-            var cell = row.append("td");
-            cell.text(value);
-        });
-    });
-}
-
 var button = d3.select("#filter-btn");
+var inputFieldDate = d3.select("#datetime");
+var inputFieldCity = d3.select("#city");
+var columns = ["datetime", "city", "state", "country", "shape", "durationMinutes", "comments"]
 
-var handleInput = () => {
-    // stops the page refresh on "Enter" button
-    d3.event.preventDefault();
-
-    var dt = d3.select("#datetime").property("value");
-    var records = getMatchingRecords(dt);
-    updateTable(records);
+var addData = (dataInput) => {
+    dataInput.forEach(ufoSightings => {
+        var row = tbody.append("tr");
+        columns.forEach(column => row.append("td").text(ufoSightings[column])
+        )
+    });
 }
 
-// Update the table with button click
-button.on("click", handleInput);
-// Enter also update the output
-d3.select("form").on("submit", handleInput);
+addData(tableData);
+
+button.on("click", () => {
+
+    d3.event.preventDefault();
+    
+    var inputDate = inputFieldDate.property("value");
+    
+    var filterDate = tableData.filter(tableData => tableData.datetime === inputDate);  
+
+    tbody.html("");
+
+    var response = {
+        filterDate
+    }
+
+    if(response.filterDate.length !== 0) {
+        addData(filterDate);
+    }
+    
+        else {
+            tbody.append("tr").append("td").text("No Sightings Here...Move On...");
+        }
+})
